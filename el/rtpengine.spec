@@ -171,7 +171,7 @@ install -D -p -m644 debian/dkms.conf.in %{buildroot}%{_usrsrc}/%{name}-%{version
 sed -i -e "s/__VERSION__/%{version}-%{release}/g" %{buildroot}%{_usrsrc}/%{name}-%{version}-%{release}/dkms.conf
 
 # For RHEL 7, load the compiled kernel module on boot.
-%if 0%{?rhel} == 7
+%if 0%{?hel} >= 7
   install -D -p -m644 kernel-module/xt_RTPENGINE.modules.load.d \
            %{buildroot}%{_sysconfdir}/modules-load.d/xt_RTPENGINE.conf
 %endif
@@ -253,7 +253,7 @@ true
 
 %files dkms
 %{_usrsrc}/%{name}-%{version}-%{release}/
-%if 0%{?rhel} == 7
+%if 0%{?rhel} >= 7
   %{_sysconfdir}/modules-load.d/xt_RTPENGINE.conf
 %endif
 
