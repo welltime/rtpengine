@@ -5,7 +5,7 @@ After=network-online.target
 
 [Service]
 Type=forking
-User=ngcp-rtpengine
+User=root
 Group=daemon
 Environment=CFGFILE=/etc/rtpengine/rtpengine.conf
 EnvironmentFile=/etc/sysconfig/rtpengine
