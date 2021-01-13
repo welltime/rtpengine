@@ -5,12 +5,12 @@ After=network-online.target
 
 [Service]
 Type=forking
-User=ngcp-rtpengine
+User=root
 Group=daemon
 Environment=CFGFILE=/etc/rtpengine/rtpengine-recording.conf
 EnvironmentFile=/etc/sysconfig/rtpengine-recording
 PIDFile=/run/rtpengine-recording.pid
-ExecStart=/usr/sbin/rtpengine-recording --config-file=${CFGFILE} --pidfile=$PIDFILE
+ExecStart=/usr/sbin/rtpengine-recording --config-file=${CFGFILE} --pidfile=/run/rtpengine-recording.pid
 Restart=on-failure
 
 [Install]
