@@ -4,6 +4,8 @@ After=network-online.target
 
 [Service]
 Type=forking
+User=root
+Group=daemon
 Environment=CFG_FILE=/etc/rtpengine/rtpengine.conf
 EnvironmentFile=/etc/sysconfig/rtpengine
 PID_File=/run/rtpengine.pid
