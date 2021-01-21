@@ -13,6 +13,8 @@ PIDFile=/run/rtpengine-recording.pid
 ExecStart=/usr/sbin/rtpengine-recording --config-file=${CFG_FILE} --pidfile=/run/rtpengine-recording.pid
 TimeoutSec=15s
 Restart=on-failure
+LimitNOFILE=1617596
+LimitNOFILESoft=1617596
 
 [Install]
 WantedBy=multi-user.target
