@@ -15,6 +15,7 @@
 #include "main.h"
 
 
+#define VCHANNELMAP "0.0-FL|1.0-FR"
 
 struct mix_s {
 	format_t in_format,
@@ -131,11 +132,19 @@ int mix_config(mix_t *mix, const format_t *format) {
 		flt = avfilter_get_by_name("amix");
 	else if (mix_method == MM_CHANNELS)
 		flt = avfilter_get_by_name("amerge");
+	else if (mix_method == MM_STEREO)
+		flt = avfilter_get_by_name("join");
 	if (!flt)
 		goto err;
 
-	snprintf(args, sizeof(args), "inputs=%lu", (unsigned long) MIX_NUM_INPUTS);
-	err = "failed to create amix/amerge filter context";
+	if(mix_method != MM_STEREO)
+	{
+		snprintf(args, sizeof(args), "inputs=%lu", (unsigned long) MIX_NUM_INPUTS);
+		err = "failed to create amix/amerge filter context";
+	} else {
+		snprintf(args, sizeof(args), "inputs=%lu:map=%s:channel_layout=0x%" PRIx64, (unsigned long) MIX_NUM_INPUTS, VCHANNELMAP, (uint64_t)AV_CH_LAYOUT_STEREO);
+		err = "failed to create join filter context";
+	}
 	if (avfilter_graph_create_filter(&mix->amix_ctx, flt, NULL, args, NULL, mix->graph))
 		goto err;
 

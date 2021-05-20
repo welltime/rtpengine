@@ -445,6 +445,13 @@ static codec_def_t __codec_defs[] = {
 		.media_type = MT_AUDIO,
 		.codec_type = &codec_type_avcodec,
 	},
+    	{
+        	.rtpname = "PCM-ALAW",
+        	.avcodec_id = AV_CODEC_ID_PCM_ALAW,
+        	.packetizer = packetizer_passthrough,
+        	.media_type = MT_AUDIO,
+        	.codec_type = &codec_type_avcodec,
+    	},
 };
 
 static GQueue __supplemental_codecs = G_QUEUE_INIT;

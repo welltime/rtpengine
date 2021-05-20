@@ -8,7 +8,7 @@
 extern int mp3_bitrate;
 
 
-void output_init(const char *format);
+void output_init(const char *format, const char *codec_s);
 
 output_t *output_new(const char *path, const char *call, const char *type);
 void output_close(output_t *);
