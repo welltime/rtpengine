@@ -5,7 +5,7 @@
 #include <libavutil/frame.h>
 
 
-#define MIX_NUM_INPUTS 4
+#define MIX_NUM_INPUTS 2
 
 
 mix_t *mix_new(void);
