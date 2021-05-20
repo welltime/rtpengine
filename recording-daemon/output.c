@@ -345,15 +345,21 @@ void output_close(output_t *output) {
 }
 
 
-void output_init(const char *format) {
+void output_init(const char *format, const char *codec_s) {
 	str codec;
 
 	if (!strcmp(format, "wav")) {
-		str_init(&codec, "PCM-S16LE");
+		if(codec_s == NULL)
+			str_init(&codec, "PCM-S16LE");
+		else
+			str_init(&codec, (char *)codec_s);
 		output_file_format = "wav";
 	}
 	else if (!strcmp(format, "mp3")) {
-		str_init(&codec, "MP3");
+		if(codec_s == NULL)
+			str_init(&codec, "MP3");
+		else
+			str_init(&codec, (char *)codec_s);
 		output_file_format = "mp3";
 	}
 	else
