@@ -249,7 +249,7 @@ true
 %config(noreplace) %{_sysconfdir}/sysconfig/%{binname}
 %attr(0750,%{name},%{name}) %dir %{_sharedstatedir}/%{name}
 # default config
-%{_sysconfdir}/%{binname}/%{binname}.conf
+%config(noreplace) %{_sysconfdir}/%{binname}/%{binname}.conf
 # Documentation
 %doc LICENSE README.md el/README.el.md debian/changelog debian/copyright
 
@@ -278,7 +278,7 @@ true
 # Sysconfig
 %config(noreplace) %{_sysconfdir}/sysconfig/%{binname}-recording
 # Default config
-%{_sysconfdir}/%{binname}/%{binname}-recording.conf
+%config(noreplace) %{_sysconfdir}/%{binname}/%{binname}-recording.conf
 # spool directory
 %attr(0750,%{name},%{name}) %dir %{_var}/spool/%{binname}
 %endif
