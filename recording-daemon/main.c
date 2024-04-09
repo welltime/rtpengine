@@ -36,6 +36,7 @@ enum output_storage_enum output_storage = OUTPUT_STORAGE_FILE;
 char *spool_dir = NULL;
 char *output_dir = NULL;
 static char *output_format = NULL;
+static char *output_codec = NULL;
 int output_mixed;
 enum mix_method mix_method;
 int output_single;
@@ -87,7 +88,7 @@ static void setup(void) {
 	if (decoding_enabled)
 		codeclib_init(0);
 	if (output_enabled)
-		output_init(output_format);
+		output_init(output_format, output_codec);
 	mysql_library_init(0, NULL, NULL);
 	signals();
 	metafile_setup();
@@ -186,10 +187,11 @@ static void options(int *argc, char ***argv) {
 		{ "output-dir",		0,   0, G_OPTION_ARG_STRING,	&output_dir,	"Where to write media files to",	"PATH"		},
 		{ "output-pattern",	0,   0, G_OPTION_ARG_STRING,	&output_pattern,"File name pattern for recordings",	"STRING"	},
 		{ "output-format",	0,   0, G_OPTION_ARG_STRING,	&output_format,	"Write audio files of this type",	"wav|mp3|none"	},
+		{ "output-codec",	0,   0, G_OPTION_ARG_STRING,	&output_codec,	"Write audio files of this codec",	"codec name"	},
 		{ "resample-to",	0,   0, G_OPTION_ARG_INT,	&resample_audio,"Resample all output audio",		"INT"		},
 		{ "mp3-bitrate",	0,   0, G_OPTION_ARG_INT,	&mp3_bitrate,	"Bits per second for MP3 encoding",	"INT"		},
 		{ "output-mixed",	0,   0, G_OPTION_ARG_NONE,	&output_mixed,	"Mix participating sources into a single output",NULL	},
-		{ "mix-method",		0,   0, G_OPTION_ARG_STRING,	&mix_method_str,"How to mix multiple sources",		"direct|channels"},
+		{ "mix-method",		0,   0, G_OPTION_ARG_STRING,	&mix_method_str,"How to mix multiple sources",		"direct|channels|stereo"},
 		{ "output-single",	0,   0, G_OPTION_ARG_NONE,	&output_single,	"Create one output file for each source",NULL		},
 		{ "output-chmod",	0,   0, G_OPTION_ARG_STRING,	&chmod_mode,	"File mode for recordings",		"OCTAL"		},
 		{ "output-chmod-dir",	0,   0, G_OPTION_ARG_STRING,	&chmod_dir_mode,"Directory mode for recordings",	"OCTAL"		},
@@ -253,6 +255,8 @@ static void options(int *argc, char ***argv) {
 		mix_method = MM_DIRECT;
 	else if (!strcmp(mix_method_str, "channels"))
 		mix_method = MM_CHANNELS;
+	else if (!strcmp(mix_method_str, "stereo"))
+		mix_method = MM_STEREO;
 	else
 		die("Invalid 'mix-method' option");
 
