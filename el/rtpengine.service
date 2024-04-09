@@ -1,19 +1,20 @@
 [Unit]
 Description=NGCP RTP/media Proxy Daemon
+Wants=network-online.target
 After=network-online.target
 
 [Service]
 Type=forking
 Environment=CFG_FILE=/etc/rtpengine/rtpengine.conf
 EnvironmentFile=/etc/sysconfig/rtpengine
-User=ngcp-rtpengine
-Group=ngcp-rtpengine
+User=root
+Group=daemon
 AmbientCapabilities=CAP_NET_ADMIN CAP_SYS_NICE
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_SYS_NICE
 LimitNOFILE=150000
 RuntimeDirectory=rtpengine
-PIDFile=/run/rtpengine/rtpengine.pid
-ExecStart=/usr/bin/rtpengine --config-file=${CFG_FILE} --pidfile=${PID_FILE}
+PIDFile=/run/rtpengine.pid
+ExecStart=/usr/bin/rtpengine --config-file=${CFG_FILE} --pidfile=/run/rtpengine.pid
 RestartSec=3s
 TimeoutSec=15s
 Restart=on-failure
