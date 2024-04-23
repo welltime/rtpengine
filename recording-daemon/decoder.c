@@ -66,7 +66,8 @@ decode_t *decoder_new(const char *payload_str, const char *format, int ptime, ou
 	// we can now config our output, which determines the sample format we convert to
 	format_t out_format = {
 		.clockrate = clockrate,
-		.channels = channels,
+//		.channels = channels,
+		.channels = 2,
 		.format = -1,
 	};
 

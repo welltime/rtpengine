@@ -422,16 +422,26 @@ void output_close(metafile_t *mf, output_t *output, tag_t *tag, bool discard) {
 }
 
 
-void output_init(const char *format) {
+void output_init(const char *format, const char *codec_s) {
 	str codec;
 
 	if (!strcmp(format, "wav")) {
-		str_init(&codec, "PCM-S16LE");
-		output_file_format = "wav";
+                if(codec_s == NULL) {
+		    str_init(&codec, "PCM-S16LE");
+		}
+                else {
+		    str_init(&codec, (char *)codec_s);
+		    output_file_format = "wav";
+		}
 	}
 	else if (!strcmp(format, "mp3")) {
-		str_init(&codec, "MP3");
-		output_file_format = "mp3";
+                if(codec_s == NULL) {
+		    str_init(&codec, "MP3");
+		}
+                else {
+		    str_init(&codec, (char *)codec_s);
+		    output_file_format = "mp3";
+        }
 	}
 	else
 		die("Unknown output format '%s'", format);
