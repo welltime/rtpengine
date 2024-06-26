@@ -124,9 +124,89 @@ static void __ng_buffer_free(void *p) {
 		obj_put_o(ngbuf->ref);
 }
 
+char *get_oca_ident(const char *source, const char *start_delim, const char *end_delim) {
+    const char *start = strstr(source, start_delim);
+    if (start != NULL) {
+        start += strlen(start_delim);
+        const char *end = strstr(start, end_delim);
+        if (end != NULL) {
+            size_t length = end - start;
+            char *result = strndup(start, length);
+            if (result != NULL) {
+                return result;
+            }
+        }
+    }
+    return NULL;
+}
+
 int control_ng_process(str *buf, const endpoint_t *sin, char *addr,
 		void (*cb)(str *, str *, const endpoint_t *, void *), void *p1, struct obj *ref)
-{
+{	
+	const char *start_delim = "oca:";
+	const char *end_delim = ":oca";
+
+	char *result = get_oca_ident(buf->s, start_delim, end_delim);
+	if (result != NULL) {
+		ilog(LOG_INFO, "Start of package processing from OCA: %s ", result);
+		const char *oca_label_pref = "e5:label";
+		const char *oca_metadata_pref = "8:metadata";
+		const char *oca_metadata_in_suf = "e";
+		size_t start_delim_len = strlen(start_delim);
+		size_t result_len = strlen(result);
+		size_t end_delim_len = strlen(end_delim);
+		size_t oca_metadata_in_suf_len = strlen(oca_metadata_in_suf);
+		size_t oca_metadata_pref_len = strlen(oca_metadata_pref);
+		size_t oca_label_pref_len = strlen(oca_label_pref);
+		char *oca_metadata_in = malloc(start_delim_len + result_len + end_delim_len + oca_metadata_in_suf_len + 1);
+		char *oca_metadata_out = malloc(start_delim_len + result_len + 1);
+		char *oca_label_pref_out = malloc(oca_label_pref_len + result_len + sizeof(result_len) + 2);
+		
+		if (oca_metadata_in != NULL && oca_metadata_out != NULL && oca_label_pref_out != NULL) {
+			sprintf(oca_metadata_in, "%s%s%s%s", start_delim, result, end_delim, oca_metadata_in_suf);
+			sprintf(oca_metadata_out, "%s%s", start_delim, result);
+			sprintf(oca_label_pref_out, "%s%zu:%s", oca_label_pref, result_len,result);
+			
+			size_t len_oca_metadata_in = strlen(oca_metadata_in);
+			size_t len_oca_metadata_out = strlen(oca_metadata_out);
+			size_t len_oca_label_pref_out = strlen(oca_label_pref_out);
+			size_t len_wos_oca_metadata_in = len_oca_metadata_in - 1;
+			char str_len_oca_metadata_in[20];
+			char str_len_oca_metadata_out[20];
+			snprintf(str_len_oca_metadata_in, sizeof(str_len_oca_metadata_in), "%zu", len_oca_metadata_in);
+			snprintf(str_len_oca_metadata_out, sizeof(str_len_oca_metadata_out), "%zu", len_oca_metadata_out);
+			size_t len2_oca_metadata_in = strlen(str_len_oca_metadata_in);
+			size_t len2_oca_metadata_out = strlen(str_len_oca_metadata_out);
+			char *oca_metadata_bencode_in = malloc(len2_oca_metadata_in + len_oca_metadata_in + 2);
+			char *oca_metadata_bencode_out = malloc(len_oca_label_pref_out + oca_metadata_pref_len + len2_oca_metadata_out + len_oca_metadata_out + 2);
+
+			if (oca_metadata_bencode_in != NULL && oca_metadata_bencode_out != NULL) {
+				snprintf(oca_metadata_bencode_in, len2_oca_metadata_in + len_oca_metadata_in + 2,
+						"%zu:%s", len_wos_oca_metadata_in, oca_metadata_in);
+				snprintf(oca_metadata_bencode_out, len_oca_label_pref_out + oca_metadata_pref_len + len2_oca_metadata_out + len_oca_metadata_out + 2,
+						"%s%s%s:%s", oca_label_pref_out, oca_metadata_pref, str_len_oca_metadata_out, oca_metadata_out);
+				char *replace_find_pos = strstr(buf->s, oca_metadata_bencode_in);
+				if (replace_find_pos != NULL) {
+					size_t len_oca_metadata_bencode_in = strlen(oca_metadata_bencode_in);
+					size_t len_oca_metadata_bencode_out = strlen(oca_metadata_bencode_out);
+					if (len_oca_metadata_bencode_in != len_oca_metadata_bencode_out) {
+						memmove(replace_find_pos + len_oca_metadata_bencode_out, replace_find_pos + len_oca_metadata_bencode_in,
+								strlen(replace_find_pos+len_oca_metadata_bencode_in) + 1);
+					}
+					memcpy(replace_find_pos, oca_metadata_bencode_out, len_oca_metadata_bencode_out);
+					buf->len = strlen(buf->s);
+				}
+				free(oca_metadata_bencode_in);
+				free(oca_metadata_bencode_out);
+			}
+			free(oca_metadata_in);
+			free(oca_metadata_out);
+			free(oca_label_pref_out);
+		}
+		free(result);
+		ilog(LOG_INFO, "End of package processing from OCA.");
+	}
+
 	struct ng_buffer *ngbuf;
 	bencode_item_t *dict, *resp;
 	str cmd = STR_NULL, cookie, data, reply, *to_send, callid;

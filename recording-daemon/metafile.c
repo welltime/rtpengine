@@ -74,7 +74,13 @@ static void meta_stream_interface(metafile_t *mf, unsigned long snum, char *cont
 	if (output_enabled && output_mixed && mf->recording_on) {
 		pthread_mutex_lock(&mf->mix_lock);
 		if (!mf->mix) {
-			mf->mix_out = output_new(output_dir, mf->parent, "mix", "mix");
+			if (mix_method == MM_STEREO) {
+				tag_t *tag = tag_get(mf, 0);
+				mf->mix_out = output_new(output_dir, mf->parent, "mix", tag->label);
+			}
+			else {
+				mf->mix_out = output_new(output_dir, mf->parent, "mix", "mix");
+			}
 			if (mix_method == MM_CHANNELS)
 				mf->mix_out->channel_mult = MIX_NUM_INPUTS;
 			mf->mix = mix_new();
